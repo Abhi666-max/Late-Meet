@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Meeting Dashboard — AI Copilot</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="dash-header">
+    <div class="dash-header-left">
+      <span class="dash-logo">🧠</span>
+      <div>
+        <div class="dash-title">Meeting Intelligence</div>
+        <div id="dash-status" class="dash-status">
+          <span class="dash-status-dot active"></span>
+          <span id="dash-status-text">Connecting...</span>
+        </div>
+      </div>
+    </div>
+    <div class="dash-header-right">
+      <div id="dash-timer" class="dash-timer">00:00:00</div>
+    </div>
+  </header>
+
+  <!-- Tabs -->
+  <nav class="dash-tabs">
+    <button class="dash-tab active" data-tab="overview">Overview</button>
+    <button class="dash-tab" data-tab="topics">Topics</button>
+    <button class="dash-tab" data-tab="decisions">Decisions</button>
+    <button class="dash-tab" data-tab="actions">Actions</button>
+    <button class="dash-tab" data-tab="people">People</button>
+    <button class="dash-tab" data-tab="timeline">Timeline</button>
+  </nav>
+
+  <!-- Tab Content -->
+  <main class="dash-content">
+
+    <!-- OVERVIEW TAB -->
+    <section id="tab-overview" class="tab-panel active">
+      <!-- Live Summary -->
+      <div class="dash-card glow-card">
+        <div class="dash-card-head">
+          <span class="dash-card-icon">📝</span>
+          <span class="dash-card-title">Live Summary</span>
+          <span class="live-indicator">
+            <span class="live-dot"></span>LIVE
+          </span>
+        </div>
+        <div id="dash-summary" class="dash-summary-text">
+          Waiting for conversation to begin...
+        </div>
+      </div>
+
+      <!-- Current Topic -->
+      <div class="dash-card">
+        <div class="dash-card-head">
+          <span class="dash-card-icon">🎯</span>
+          <span class="dash-card-title">Current Topic</span>
+        </div>
+        <div id="dash-current-topic" class="current-topic-box">
+          Detecting...
+        </div>
+      </div>
+
+      <!-- Quick Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-card" id="stat-topics">
+          <div class="stat-card-icon">💬</div>
+          <div class="stat-card-value" id="dash-topic-count">0</div>
+          <div class="stat-card-label">Topics</div>
+        </div>
+        <div class="stat-card" id="stat-decisions">
+          <div class="stat-card-icon">✅</div>
+          <div class="stat-card-value" id="dash-decision-count">0</div>
+          <div class="stat-card-label">Decisions</div>
+        </div>
+        <div class="stat-card" id="stat-actions">
+          <div class="stat-card-icon">📋</div>
+          <div class="stat-card-value" id="dash-action-count">0</div>
+          <div class="stat-card-label">Actions</div>
+        </div>
+        <div class="stat-card" id="stat-people">
+          <div class="stat-card-icon">👥</div>
+          <div class="stat-card-value" id="dash-people-count">0</div>
+          <div class="stat-card-label">People</div>
+        </div>
+      </div>
+
+      <!-- Sentiment -->
+      <div class="dash-card">
+        <div class="dash-card-head">
+          <span class="dash-card-icon">🎭</span>
+          <span class="dash-card-title">Meeting Sentiment</span>
+        </div>
+        <div class="sentiment-bar">
+          <div id="dash-sentiment-fill" class="sentiment-fill" style="width: 50%"></div>
+        </div>
+        <div class="sentiment-labels">
+          <span>😟 Negative</span>
+          <span id="dash-sentiment-label" style="font-weight: 700; color: #E0E7FF;">Neutral</span>
+          <span>😊 Positive</span>
+        </div>
+      </div>
+
+      <!-- Key Insights -->
+      <div class="dash-card">
+        <div class="dash-card-head">
+          <span class="dash-card-icon">💡</span>
+          <span class="dash-card-title">Key Insights</span>
+        </div>
+        <ul id="dash-insights-list" class="insight-list">
+          <li class="empty-msg">Insights will appear as the conversation progresses</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- TOPICS TAB -->
+    <section id="tab-topics" class="tab-panel">
+      <div class="dash-card">
+        <div class="dash-card-head">
+          <span class="dash-card-icon">🗂️</span>
+          <span class="dash-card-title">Discussion Topics</span>
+        </div>
+        <div id="dash-topics-full" class="topics-full-list">
+          <div class="empty-msg">No topics detected yet</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DECISIONS TAB -->
+    <section id="tab-decisions" class="tab-panel">
+      <div class="dash-card">
+        <div class="dash-card-head">
+          <span class="dash-card-icon">⚖️</span>
+          <span class="dash-card-title">Decisions Made</span>
+        </div>
+        <div id="dash-decisions-list" class="decisions-full-list">
+          <div class="empty-msg">No decisions detected yet</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ACTIONS TAB -->
+    <section id="tab-actions" class="tab-panel">
+      <div class="dash-card">
+        <div class="dash-card-head">
+          <span class="dash-card-icon">✏️</span>
+          <span class="dash-card-title">Action Items</span>
+        </div>
+        <div id="dash-actions-list" class="actions-full-list">
+          <div class="empty-msg">No action items detected yet</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PEOPLE TAB -->
+    <section id="tab-people" class="tab-panel">
+      <div class="dash-card">
+        <div class="dash-card-head">
+          <span class="dash-card-icon">👥</span>
+          <span class="dash-card-title">Participants</span>
+        </div>
+        <div id="dash-participants-list" class="participants-list">
+          <div class="empty-msg">No participants detected</div>
+        </div>
+      </div>
+      <div class="dash-card" id="late-joiners-card" style="display: none;">
+        <div class="dash-card-head">
+          <span class="dash-card-icon">🚪</span>
+          <span class="dash-card-title">Late Joiners</span>
+        </div>
+        <div id="dash-late-joiners" class="late-joiner-list"></div>
+      </div>
+    </section>
+
+    <!-- TIMELINE TAB -->
+    <section id="tab-timeline" class="tab-panel">
+      <div class="dash-card">
+        <div class="dash-card-head">
+          <span class="dash-card-icon">⏱️</span>
+          <span class="dash-card-title">Meeting Timeline</span>
+        </div>
+        <div id="dash-timeline" class="timeline-list">
+          <div class="empty-msg">Timeline will build as the meeting progresses</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="dash-footer">
+    <button id="export-btn" class="export-btn">
+      <span>📥</span> Export Summary
+    </button>
+  </footer>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>
