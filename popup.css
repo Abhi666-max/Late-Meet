@@ -528,6 +528,38 @@ body::-webkit-scrollbar-thumb {
 }
 .copilot-btn.active .copilot-btn-icon { color: #A3A3A3; }
 
+/* Loading state */
+.copilot-btn.loading {
+  background: #171717;
+  color: #737373;
+  cursor: wait;
+}
+
+.copilot-btn.loading .copilot-btn-icon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Start Audio fallback button in no-meeting section */
+.start-audio-fallback {
+  margin-top: 20px;
+  width: auto;
+  padding: 12px 24px;
+  background: transparent;
+  border: 1px solid #333;
+  color: #FAFAFA;
+  font-size: 13px;
+}
+
+.start-audio-fallback:hover:not(:disabled) {
+  background: #171717;
+  border-color: #525252;
+}
+
 /* ——— Dashboard Button ——— */
 .dashboard-btn {
   display: flex;
