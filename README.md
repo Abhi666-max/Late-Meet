@@ -14,6 +14,12 @@
 
 <br />
 
+> [!IMPORTANT]
+> **Repository Scope Notice:** The website linked in this project's metadata is **not** part of this repository. 
+> - Please **do not** open issues regarding UI/UX design changes or bugs for the website here.
+> - This repository is dedicated exclusively to the **Late Meet Chrome Extension**.
+> - The website link is being disabled to prevent further confusion. All contributions and issue reports should focus on the extension's functionality and performance.
+
 <p align="center">
   <a href="#-the-problem">Problem</a> ·
   <a href="#-our-solution">Solution</a> ·
@@ -144,6 +150,9 @@ Contributions, issues, and feature requests are welcome! We have labeled issues 
 
 **Found a bug or have an idea?** Open a public issue on the [Issues page](https://github.com/shouri123/Late-Meet/issues)! We use issue templates for [bug reports](.github/ISSUE_TEMPLATE/bug_report.md) and [feature requests](.github/ISSUE_TEMPLATE/feature_request.md) to keep things organized.
 
+> [!CAUTION]
+> **Issue Scope:** Please only report issues and feature requests for the **Chrome Extension**. Do not request UI/UX design changes or report bugs for the website.
+
 When contributing:
 1. Emphasize vanilla, zero-dependency JavaScript workflows where possible.
 2. Adhere strictly to the monochromatic UI design system.
@@ -158,7 +167,7 @@ When contributing:
 |-------|--------|------|
 | Audio capture intermittently fails after migration from OpenAI Whisper to ElevenLabs Scribe STT | 🔴 Open | [#1](https://github.com/shouri123/Late-Meet/issues/1) |
 
-> If you encounter any other issues, please [open a new issue](https://github.com/shouri123/Late-Meet/issues/new/choose) with as much detail as possible. Screenshots and console logs are very helpful!
+> If you encounter any other issues **with the extension**, please [open a new issue](https://github.com/shouri123/Late-Meet/issues/new/choose) with as much detail as possible. Screenshots and console logs are very helpful!
 
 ---
 
