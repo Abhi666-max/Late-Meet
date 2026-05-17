@@ -1,67 +1,57 @@
-# Production-Ready GitHub Issue Bank for Late-Meet (GSSoC 2026 Edition)
+# Production-Ready GitHub Issue Bank for Late-Meet (Categorized GSSoC 2026 Edition)
 
-This document provides a highly structured bank of **12 validated, production-ready issues** to raise on your GitHub repository, [shouri123/Late-Meet](https://github.com/shouri123/Late-Meet).
+This document provides a highly structured bank of **14 audited, production-ready issues** to raise on your GitHub repository, [shouri123/Late-Meet](https://github.com/shouri123/Late-Meet).
 
-These issues are designed specifically for your architecture (Vite, CRXJS, Manifest V3, Chrome Extension APIs, and ElevenLabs Scribe). They have been strictly audited against your current codebase to guarantee viability and **completely exclude any features currently in progress by other developers** (specifically meeting history, local search, multi-language options, keyboard shortcuts, and custom dropdown templates).
+The issues have been organized into the **4 standard GitHub Issue Categories** shown in your issue creation console:
 
----
-
-## 📋 Overview of Audited Issues
-
-| Issue ID   | Issue Title                                                                 | Difficulty      | Target Area     | Value Proposition                                                                                     |
-| :--------- | :-------------------------------------------------------------------------- | :-------------- | :-------------- | :---------------------------------------------------------------------------------------------------- |
-| **LM-001** | Migrate Core Utility Modules (`api.js`, `prompts.js`) to Strict TypeScript  | 🟢 Beginner     | Code Health     | Enforces strict type-safety, removes JS imports, and speeds up the build pipeline.                    |
-| **LM-002** | Silent Audio Chunk Filtering via Client-Side Voice Activity Detection (VAD) | 🔴 Advanced     | API Cost        | Drops silent audio slices locally inside offscreen context to minimize ElevenLabs token expenses.     |
-| **LM-003** | Zero-Overhead Speaker Diarization using Google Meet's DOM Indicators        | 🟡 Intermediate | Core UX / AI    | Replaces generic `"Audio"` speaker tags with actual names by scraping Meet active-speaking borders.   |
-| **LM-004** | Offline-Resilient API Request Queue with Jittered Exponential Backoff       | 🟡 Intermediate | Robustness      | Enqueues and retries requests dynamically during brief internet dropouts without losing audio slices. |
-| **LM-005** | Dual-Channel Exporter (Markdown & JSON Files) with Side-Panel Toast Alerts  | 🟢 Beginner     | Usability       | Replaces browser-native `alert()` popups with high-quality downloadable files and custom toasts.      |
-| **LM-006** | Dynamic Conversational Slicing via Vocal Pause Detection                    | 🔴 Advanced     | AI Quality      | Cuts recording chunks at natural pauses (breathing silence) instead of rigid 10s intervals.           |
-| **LM-007** | Context Menu Capturer for Generalized Tab Audio Integration                 | 🟡 Intermediate | Scope           | Expands Late-Meet to transcribe YouTube webinars, Zoom web player, or WebEx calls via context menu.   |
-| **LM-008** | Asynchronous Onboarding Key Validation with UX Shaking Feedback             | 🟢 Beginner     | Onboarding      | Prevents silent failures by verifying keys via official endpoints before committing them to storage.  |
-| **LM-009** | Sleek Dark/Light Mode Theme Synchronization & Accent Palette Picker         | 🟡 Intermediate | Aesthetics      | Syncs options and popup layouts with standard system color schemes for a visually premium UI.         |
-| **LM-010** | Real-Time Canvas Audio Waveform Visualizer in Dashboard Panel               | 🔴 Advanced     | Core UX         | Animates standard HTML5 Canvas waves when capture is active, making the dashboard feel alive.         |
-| **LM-011** | Interactive Action-Item Checker with Native Chrome Notification Alerts      | 🟡 Intermediate | UX / Utility    | Notifies users immediately when action items are detected and allows checking them off in-panel.      |
-| **LM-012** | Local API Cost & Token Usage Statistics Tracker Dashboard Widget            | 🟢 Beginner     | Cost Management | Injects a clean card tracking usage limits and estimated monthly expenses locally in the popup.       |
+1. **✨ Feature Requests** (New features, visual polish, and performance enhancers)
+2. **🐛 Bug Reports** (Fixing silent crashes, unhandled edge-cases, and stream dropouts)
+3. **📄 General Refactoring & Improvements (Blank Issues)** (TypeScript upgrades, file health, and modernizing structures)
+4. **🛡️ Security & Compliance Reports** (API token encryption, RAM-only storage, and safety controls)
 
 ---
 
-## 🚫 Excluded & Postponed Issues
+## 📋 Categorized Overview of Issues
 
-- **AES-GCM Local Database Encryption:** Excluded to avoid file conflict since another contributor is actively building the local IndexedDB meeting history storage engine.
-- **LLM Prompt Customizer Editor:** Excluded to prevent conflicts with the in-progress "Meeting summary templates" feature.
+### ✨ Category 1: Feature Requests
+
+| Issue ID   | Issue Title                                                          | Difficulty      | Value Proposition                                                                 |
+| :--------- | :------------------------------------------------------------------- | :-------------- | :-------------------------------------------------------------------------------- |
+| **LM-002** | Silent Audio Chunk Filtering via Voice Activity Detection (VAD)      | 🔴 Advanced     | Minimizes ElevenLabs transcription costs by dropping silent audio slices locally. |
+| **LM-003** | Zero-Overhead Speaker Diarization using Meet's DOM Indicators        | 🟡 Intermediate | Replaces generic `"Audio"` speaker tags with actual participant names.            |
+| **LM-004** | Offline-Resilient API Request Queue with Jittered Backoff            | 🟡 Intermediate | Enqueues and retries requests during brief internet drops without data loss.      |
+| **LM-005** | Dual-Channel Exporter (Markdown & JSON Files) with Side-Panel Toasts | 🟢 Beginner     | Allows direct downloads of session data and modern clipboard copy toasts.         |
+| **LM-006** | Dynamic Conversational Slicing via Vocal Pause Detection             | 🔴 Advanced     | Cuts chunks naturally during speech pauses instead of arbitrary 10s intervals.    |
+| **LM-007** | Context Menu Capturer for Generalized Tab Audio Integration          | 🟡 Intermediate | Expands transcription capabilities to YouTube, Zoom, or WebEx tabs.               |
+| **LM-009** | Sleek Dark/Light Mode Theme Synchronization & Accent Color Picker    | 🟡 Intermediate | Enhances options and popups visual aesthetics using modern CSS variables.         |
+| **LM-010** | Real-Time Canvas Audio Waveform Visualizer in Dashboard Panel        | 🔴 Advanced     | Animates live canvas voice waves when recording, making the UI feel alive.        |
+| **LM-011** | Interactive Action-Item Checker with Native Chrome Toast Alerts      | 🟡 Intermediate | Triggers native desktop notifications and interactive in-panel checklists.        |
+| **LM-012** | Local API Cost & Token Usage Statistics Tracker Dashboard Widget     | 🟢 Beginner     | Provides live metrics on token counts and estimated billing in USD.               |
+
+### 🐛 Category 2: Bug Reports
+
+| Issue ID   | Issue Title                                                         | Difficulty      | Value Proposition                                                             |
+| :--------- | :------------------------------------------------------------------ | :-------------- | :---------------------------------------------------------------------------- |
+| **LM-008** | Asynchronous Onboarding Key Validation with UX Shaking Feedback     | 🟢 Beginner     | Stops silent background transcription failures caused by expired/typo'd keys. |
+| **LM-013** | MediaRecorder Audio State Synchronization Crash on Sudden Tab Close | 🟡 Intermediate | Gracefully terminates and saves offscreen media pipelines when a tab crashes. |
+
+### 📄 Category 3: General Refactoring & Improvements (Blank Issues)
+
+| Issue ID   | Issue Title                                                                | Difficulty  | Value Proposition                                                             |
+| :--------- | :------------------------------------------------------------------------- | :---------- | :---------------------------------------------------------------------------- |
+| **LM-001** | Migrate Core Utility Modules (`api.js`, `prompts.js`) to Strict TypeScript | 🟢 Beginner | Enforces strict type checking and deletes legacy JavaScript compile includes. |
+
+### 🛡️ Category 4: Security & Compliance Reports
+
+| Issue ID   | Issue Title                                                       | Difficulty      | Value Proposition                                                                 |
+| :--------- | :---------------------------------------------------------------- | :-------------- | :-------------------------------------------------------------------------------- |
+| **LM-014** | Secure Storage for API Credentials using RAM-Only Session Storage | 🟡 Intermediate | Prevents malicious disk extraction of API keys by migrating to `storage.session`. |
 
 ---
 
-# Issue 1: Migrate Core Utility Modules (`api.js`, `prompts.js`) to Strict TypeScript
+# ✨ Category 1: Feature Requests
 
-### 🟢 Difficulty: Beginner (Good First Issue)
-
-### Description
-
-Currently, our repository has a highly modern TypeScript 5.x build chain with strict compile checks enabled (`"strict": true`). However, two vital utility modules in `src/utils/` remain written in JavaScript:
-
-- `src/utils/api.js` — Houses API request wrappers for ElevenLabs and OpenAI.
-- `src/utils/prompts.js` — Outlines system, summary, late-joiner, and speaker analysis prompts.
-
-Because these modules are in JavaScript, we are forced to explicitly include `.js` patterns in our `include` list in `tsconfig.json` and lose compile-time type verification, parameter safety, and autocomplete in `background.ts` and `dashboard.ts`.
-
-### Proposed Solution
-
-1. Migrate both modules to `.ts` extensions.
-2. Define structural type definitions for transcripts, summaries, topics, decisions, action items, and API responses.
-3. Remove JavaScript inclusions from the TypeScript configuration.
-
-### Affected Files
-
-- `src/utils/api.js` ➡️ **`src/utils/api.ts`**
-- `src/utils/prompts.js` ➡️ **`src/utils/prompts.ts`**
-- `tsconfig.json`
-- `src/background.ts`
-- `src/types.ts`
-
----
-
-# Issue 2: Silent Audio Chunk Filtering via Client-Side Voice Activity Detection (VAD)
+## Issue 2: Silent Audio Chunk Filtering via Voice Activity Detection (VAD)
 
 ### 🔴 Difficulty: Advanced
 
@@ -83,7 +73,7 @@ Integrate a client-side **Web Audio API Analyzer** within the offscreen context.
 
 ---
 
-# Issue 3: Zero-Overhead Speaker Diarization using Google Meet's DOM Indicators
+## Issue 3: Zero-Overhead Speaker Diarization using Google Meet's DOM Indicators
 
 ### 🟡 Difficulty: Intermediate
 
@@ -113,7 +103,7 @@ Running a machine learning speaker identification model in-browser is computatio
 
 ---
 
-# Issue 4: Offline-Resilient API Request Queue with Jittered Exponential Backoff
+## Issue 4: Offline-Resilient API Request Queue with Jittered Exponential Backoff
 
 ### 🟡 Difficulty: Intermediate
 
@@ -140,7 +130,7 @@ Build an **API Transaction Manager** class within `background.ts`. Enqueue reque
 
 ---
 
-# Issue 5: Dual-Channel Exporter (Markdown & JSON Files) with Side-Panel Toast Alerts
+## Issue 5: Dual-Channel Exporter (Markdown & JSON Files) with Side-Panel Toast Alerts
 
 ### 🟢 Difficulty: Beginner (Good First Issue)
 
@@ -169,7 +159,7 @@ This is highly disruptive to the user workflow and blocks the browser. Additiona
 
 ---
 
-# Issue 6: Dynamic Conversational Slicing via Vocal Pause Slicing
+## Issue 6: Dynamic Conversational Slicing via Vocal Pause Slicing
 
 ### 🔴 Difficulty: Advanced
 
@@ -196,7 +186,7 @@ Replace arbitrary timer slicing with **Dynamic Conversational Slicing**:
 
 ---
 
-# Issue 7: Context Menu Capturer for Generalized Tab Audio Integration
+## Issue 7: Context Menu Capturer for Generalized Tab Audio Integration
 
 ### 🟡 Difficulty: Intermediate
 
@@ -222,31 +212,7 @@ Introduce a **Rules-Free Tab Capturer** using the Chrome Context Menus API:
 
 ---
 
-# Issue 8: Asynchronous Onboarding Key Validation with UX Shaking Feedback
-
-### 🟢 Difficulty: Beginner (Good First Issue)
-
-### Description
-
-Currently, when a user launches the popup window and inputs their OpenAI API key or navigates to the options page to input an ElevenLabs Key, the inputs are immediately saved to storage without checking if the key is structurally valid, active, or funded. If a user commits a typo or saves an expired key, the extension will appear as "Recording..." but will fail silently in the background, dropping transcriptions with raw API 401 exceptions in the developer log.
-
-### Proposed Solution
-
-Add an dynamic validation query step prior to saving. When a user clicks "Save Key":
-
-1. Fire a lightweight asynchronous check request to `https://api.openai.com/v1/models` (OpenAI) or `https://api.elevenlabs.io/v1/user` (ElevenLabs).
-2. If the request succeeds, save the keys and slide the panel view open.
-3. If the request fails (due to a 401/403 credentials error), show a descriptive error label, flag the text box with red borders, and trigger a hardware-accelerated shake animation so the user is immediately aware of the error.
-
-### Affected Files
-
-- `src/popup.ts`
-- `src/popup.html`
-- `src/options.ts`
-
----
-
-# Issue 9: Sleek Dark/Light Mode Theme Synchronization & Accent Palette Picker
+## Issue 9: Sleek Dark/Light Mode Theme Synchronization & Accent Palette Picker
 
 ### 🟡 Difficulty: Intermediate
 
@@ -262,8 +228,8 @@ Implement a **Theme & Color Customization Framework**:
 2. Add a standard toggle inside settings to support:
    - **Light Mode**
    - **Dark Mode**
-   - **System Default** (automatically syncing via `@media (prefers-color-scheme: dark)`).
-3. Introduce an optional color circle selection grid inside the Options interface, allowing users to pick a custom accent highlight color (e.g., cobalt blue, royal purple, mint green, or orange coral). Save these options in local storage and apply dynamically to elements across all extension sub-panels.
+   - **System Default** (automatically syncing via prefers-color-scheme).
+3. Introduce an optional color circle selection grid inside the Options interface, allowing users to pick a custom accent highlight color. Save these options in local storage and apply dynamically to elements across all extension sub-panels.
 
 ### Affected Files
 
@@ -273,7 +239,7 @@ Implement a **Theme & Color Customization Framework**:
 
 ---
 
-# Issue 10: Real-Time Canvas Audio Waveform Visualizer in Dashboard Panel
+## Issue 10: Real-Time Canvas Audio Waveform Visualizer in Dashboard Panel
 
 ### 🔴 Difficulty: Advanced
 
@@ -286,9 +252,9 @@ When Late-Meet is active, the popup dashboard displays static buttons or labels 
 Add an dynamic, high-fidelity **Audio Waveform Canvas**:
 
 1. In `src/dashboard.html`, allocate a modern `<canvas>` block directly under the recording status card.
-2. In the `offscreen.ts` context, leverage the Web Audio API `AnalyserNode` to extract active time-domain byte data (`analyser.getByteTimeDomainData`).
-3. Stream a highly lightweight packet containing condensed frequency indicators to the dashboard panel via standard runtime channel messages (`ACTIVE_WAVE_DATA`).
-4. In the side panel script (`dashboard.ts`), draw a beautiful, animated sine wave or bar frequency visualizer matching the HSL accent colors, which dynamically morphs and slides to reflect the speaker's vocal amplitude in real time.
+2. In the `offscreen.ts` context, leverage the Web Audio API `AnalyserNode` to extract active time-domain byte data.
+3. Stream a highly lightweight packet containing condensed frequency indicators to the dashboard panel via standard runtime channel messages.
+4. In the side panel script (`dashboard.ts`), draw a beautiful, animated sine wave or bar frequency visualizer matching the HSL accent colors.
 
 ### Affected Files
 
@@ -298,7 +264,7 @@ Add an dynamic, high-fidelity **Audio Waveform Canvas**:
 
 ---
 
-# Issue 11: Interactive Action-Item Checker with Native Chrome Notification Alerts
+## Issue 11: Interactive Action-Item Checker with Native Chrome Notification Alerts
 
 ### 🟡 Difficulty: Intermediate
 
@@ -311,8 +277,8 @@ Late-Meet parses rolling meeting transcripts and extracts actionable items (topi
 Introduce an **Active Task Manager & Notification Pipeline**:
 
 1. Implement standard Chrome Notifications (`chrome.notifications` API) inside the background service worker.
-2. When the OpenAI parser detects a _new_ critical Action Item or Decision, verify if notifications are enabled and push a premium native Chrome toast alert (e.g., _"New Decision by John Doe: Relocate database to AWS"_).
-3. In the side panel dashboard, make the action items checklist interactive. Render each action item with a sleek checkbox. When checked, save the task status ('completed' or 'pending') in local state storage and cross it out with a smooth CSS strikethrough transition.
+2. When the OpenAI parser detects a _new_ critical Action Item or Decision, verify if notifications are enabled and push a premium native Chrome toast alert.
+3. In the side panel dashboard, make the action items checklist interactive. Render each action item with a sleek checkbox. When checked, save the task status ('completed' or 'pending') in local state storage.
 
 ### Affected Files
 
@@ -323,7 +289,7 @@ Introduce an **Active Task Manager & Notification Pipeline**:
 
 ---
 
-# Issue 12: Local API Cost & Token Usage Statistics Tracker Dashboard Widget
+## Issue 12: Local API Cost & Token Usage Statistics Tracker Dashboard Widget
 
 ### 🟢 Difficulty: Beginner (Good First Issue)
 
@@ -335,13 +301,117 @@ To prevent users from exceeding their OpenAI API limits or ElevenLabs subscripti
 
 Create a local **API Usage Tracker Widget**:
 
-1. Inside the background script, calculate the exact token count sent and received for each OpenAI API call (using basic approximation or character calculation) and track the duration of audio seconds transcribed via ElevenLabs.
-2. Multiply these metrics by the standard API models rate card (e.g., OpenAI $0.150 / 1M tokens, ElevenLabs Scribe pricing) to estimate the total cost in USD.
+1. Inside the background script, calculate the exact token count sent and received for each OpenAI API call and track the duration of audio seconds transcribed via ElevenLabs.
+2. Multiply these metrics by the standard API models rate card to estimate the total cost in USD.
 3. Save the running sums inside `chrome.storage.local` indexed by date.
-4. Render a sleek **"Cost & Token Usage"** stats widget card in the extension popup and sidepanel dashboard, showing total tokens consumed and estimated session cost, with a "Reset Statistics" option.
+4. Render a sleek **"Cost & Token Usage"** stats widget card in the extension popup and sidepanel dashboard.
 
 ### Affected Files
 
 - `src/dashboard.html`
 - `src/dashboard.ts`
 - `src/background.ts`
+
+---
+
+# 🐛 Category 2: Bug Reports
+
+## Issue 8: Asynchronous Onboarding Key Validation with UX Shaking Feedback
+
+### 🟢 Difficulty: Beginner (Good First Issue)
+
+### Description
+
+Currently, when a user launches the popup window and inputs their OpenAI API key or navigates to the options page to input an ElevenLabs Key, the inputs are saved immediately without checking validity. If a user commits a typo or saves an expired key, the extension will appear as "Recording..." but will fail silently in the background, dropping transcriptions with raw API 401 exceptions in the developer log.
+
+### Proposed Solution
+
+Add a dynamic validation query step prior to saving. When a user clicks "Save Key":
+
+1. Fire a lightweight asynchronous check request to `https://api.openai.com/v1/models` (OpenAI) or `https://api.elevenlabs.io/v1/user` (ElevenLabs).
+2. If the request succeeds, save the keys and slide the panel view open.
+3. If the request fails, show a descriptive error label, flag the text box with red borders, and trigger a hardware-accelerated shake animation.
+
+### Affected Files
+
+- `src/popup.ts`
+- `src/popup.html`
+- `src/options.ts`
+
+---
+
+## Issue 13: MediaRecorder Audio State Synchronization Crash on Sudden Tab Close
+
+### 🟡 Difficulty: Intermediate
+
+### Description
+
+When a captured tab is closed abruptly while the `MediaRecorder` is recording inside `offscreen.ts`, the browser fires a media capture stream crash, causing standard chrome runtime messages to fail with an unhandled exception "Extension context invalidated" or "Stream track ended". This leaves background services in a dangling recording state, blocking future capture operations until the extension is reloaded.
+
+### Proposed Solution
+
+1. Add robust event listeners for `chrome.tabs.onRemoved` inside the background script.
+2. If the target tab id of the current session matches the closed tab, send a cleanup signal to the offscreen document.
+3. Within `offscreen.ts`, bind a handler to `MediaStreamTrack.onended` to catch when the tab sharing stream is broken.
+4. Safely invoke `mediaRecorder.stop()`, clear all timers (`vadTimer`, `recordingStartTime`), flush the final chunk, and notify `background.ts` to transition the app state gracefully to idle.
+
+### Affected Files
+
+- `src/offscreen.ts`
+- `src/background.ts`
+
+---
+
+# 📄 Category 3: General Refactoring & Improvements (Blank Issues)
+
+## Issue 1: Migrate Core Utility Modules (`api.js`, `prompts.js`) to Strict TypeScript
+
+### 🟢 Difficulty: Beginner (Good First Issue)
+
+### Description
+
+Currently, our repository has a highly modern TypeScript 5.x build chain with strict compile checks enabled (`"strict": true`). However, two vital utility modules in `src/utils/` remain written in JavaScript:
+
+- `src/utils/api.js` — Houses API request wrappers for ElevenLabs and OpenAI.
+- `src/utils/prompts.js` — Outlines system, summary, late-joiner, and speaker analysis prompts.
+
+Because these modules are in JavaScript, we lose compile-time type verification, parameter safety, and autocomplete.
+
+### Proposed Solution
+
+1. Migrate both modules to `.ts` extensions.
+2. Define structural type definitions for transcripts, summaries, topics, decisions, action items, and API responses inside `src/types.ts`.
+3. Remove JavaScript inclusions from the TypeScript configuration `tsconfig.json`.
+
+### Affected Files
+
+- `src/utils/api.js` ➡️ **`src/utils/api.ts`**
+- `src/utils/prompts.js` ➡️ **`src/utils/prompts.ts`**
+- `tsconfig.json`
+- `src/background.ts`
+- `src/types.ts`
+
+---
+
+# 🛡️ Category 4: Security & Compliance Reports
+
+## Issue 14: Secure Storage for API Credentials using RAM-Only Session Storage
+
+### 🟡 Difficulty: Intermediate
+
+### Description
+
+Currently, sensitive credentials (the user's private OpenAI and ElevenLabs API keys) are saved permanently in plaintext inside `chrome.storage.local`. Under this paradigm, if the computer is compromised or a user installs another extension with general storage read permissions, the private keys can be extracted and compromised instantly.
+
+### Proposed Solution
+
+1. Migrate sensitive credential storage from `chrome.storage.local` to `chrome.storage.session`.
+2. The `chrome.storage.session` API is held exclusively in memory (system RAM), meaning keys are never committed to raw hard drive sectors and are automatically wiped when the user closes their browser.
+3. Add a fallback configuration option in settings: _"Remember API Key across browser sessions"_ (which will obfuscate and store key hashes) or default to safe RAM-only credentials memory.
+
+### Affected Files
+
+- `src/popup.ts`
+- `src/options.ts`
+- `src/background.ts`
+- `src/manifest.json`
