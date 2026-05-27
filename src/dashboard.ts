@@ -1,5 +1,6 @@
 import { State, Topic, TranscriptEntry, TimelineEvent, Decision, ActionItem } from "./types";
 import { initTheme } from "./theme.js";
+import { resolveManualMeetTab } from "./meetingTabs";
 
 initTheme();
 
@@ -203,63 +204,59 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.warn("[Dashboard] Mic permission not granted — waveform will use tab audio only");
       }
 
-      chrome.tabs.query({ url: "https://meet.google.com/*" }, (meetTabs) => {
-        if (meetTabs.length === 0) {
-          handleDashboardAudioError(new Error("No Google Meet tab found"));
-          return;
-        }
-        const meetTab = meetTabs[0];
-        const urlMatch = meetTab.url?.match(/meet\.google\.com\/([a-z\-]+)/);
-        const meetingId = urlMatch ? urlMatch[1] : null;
+      resolveManualMeetTab()
+        .then(({ tab: meetTab, meetingId, meetingUrl }) => {
+          // --- Get Media Stream ID in foreground (dashboard) to ensure user gesture propagation ---
+          chrome.tabCapture.getMediaStreamId({ targetTabId: meetTab.id }, async (streamId) => {
+            if (chrome.runtime.lastError) {
+              const err = chrome.runtime.lastError.message || "Unknown error";
+              console.error("[Dashboard] getMediaStreamId error:", err);
+              if (err.includes("active stream")) {
+                setAudioBtnActive(true);
+                return;
+              } else {
+                handleDashboardAudioError(
+                  new Error('Capture permission denied. Try clicking "Start Audio" again.'),
+                );
+                return;
+              }
+            }
 
-        // --- Get Media Stream ID in foreground (dashboard) to ensure user gesture propagation ---
-        chrome.tabCapture.getMediaStreamId({ targetTabId: meetTab.id }, async (streamId) => {
-          if (chrome.runtime.lastError) {
-            const err = chrome.runtime.lastError.message || "Unknown error";
-            console.error("[Dashboard] getMediaStreamId error:", err);
-            if (err.includes("active stream")) {
-              setAudioBtnActive(true);
-              return;
-            } else {
+            if (!streamId) {
               handleDashboardAudioError(
                 new Error('Capture permission denied. Try clicking "Start Audio" again.'),
               );
               return;
             }
-          }
 
-          if (!streamId) {
-            handleDashboardAudioError(
-              new Error('Capture permission denied. Try clicking "Start Audio" again.'),
-            );
-            return;
-          }
+            try {
+              const response = await chrome.runtime.sendMessage({
+                type: "MANUAL_START_AUDIO",
+                tabId: meetTab.id,
+                meetingId: meetingId,
+                meetingUrl: meetingUrl,
+                streamId: streamId,
+                includeMicrophone: true,
+              });
 
-          try {
-            const response = await chrome.runtime.sendMessage({
-              type: "MANUAL_START_AUDIO",
-              tabId: meetTab.id,
-              meetingId: meetingId,
-              streamId: streamId,
-              includeMicrophone: true,
-            });
-
-            if (response && response.success) {
-              setAudioBtnActive(true);
-              // Start timer immediately
-              startTimer(Date.now());
-              const statusText = document.getElementById("dash-status-text");
-              const statusDot = document.querySelector(".dash-status-dot");
-              if (statusText) statusText.textContent = `Meeting active — ${meetingId || "unknown"}`;
-              if (statusDot) statusDot.classList.add("active");
-            } else {
-              throw new Error(response?.error || "Failed to start audio");
+              if (response && response.success) {
+                setAudioBtnActive(true);
+                // Start timer immediately
+                startTimer(Date.now());
+                const statusText = document.getElementById("dash-status-text");
+                const statusDot = document.querySelector(".dash-status-dot");
+                if (statusText)
+                  statusText.textContent = `Meeting active — ${meetingId || "unknown"}`;
+                if (statusDot) statusDot.classList.add("active");
+              } else {
+                throw new Error(response?.error || "Failed to start audio");
+              }
+            } catch (err: any) {
+              handleDashboardAudioError(err);
             }
-          } catch (err: any) {
-            handleDashboardAudioError(err);
-          }
-        });
-      });
+          });
+        })
+        .catch(handleDashboardAudioError);
     } catch (err: any) {
       handleDashboardAudioError(err);
     }

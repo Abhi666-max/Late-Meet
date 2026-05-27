@@ -15,6 +15,7 @@ const MIN_MEETING_DURATION_FOR_WELCOME = 10;
 import { ActionItem, Decision, State } from "./types";
 import { audioFileExtensionForMimeType, isChunkViable } from "./audioProcessing";
 import { getElevenLabsApiKey, getOpenAiApiKey } from "./utils/credentials";
+import { resolveDetectedMeetTab } from "./meetingTabs";
 
 const state: State = {
   isActive: false,
@@ -833,27 +834,17 @@ async function startAudioCapture(
 
 async function scanForMeetTabs() {
   try {
-    const tabs = await chrome.tabs.query({ url: "https://meet.google.com/*" });
-    if (tabs.length > 0) {
-      // Find the first tab with a meeting code
-      for (const tab of tabs) {
-        const urlMatch = tab.url?.match(/meet\.google\.com\/([a-z\-]+)/);
-        const meetingId = urlMatch ? urlMatch[1] : null;
-        if (meetingId && meetingId !== "new") {
-          if (!state.isActive) {
-            resetState();
-            state.isActive = true;
-            state.meetingId = meetingId;
-            state.meetingUrl = tab.url || null;
-            state.targetTabId = tab.id || null;
-            state.startTime = Date.now();
-            state.participants = ["You"];
-            console.log("[LateMeet] Proactively detected meeting:", meetingId);
-            await broadcastStateUpdate();
-          }
-          return;
-        }
-      }
+    const meetTab = await resolveDetectedMeetTab();
+    if (meetTab && !state.isActive) {
+      resetState();
+      state.isActive = true;
+      state.meetingId = meetTab.meetingId;
+      state.meetingUrl = meetTab.meetingUrl;
+      state.targetTabId = meetTab.tab.id || null;
+      state.startTime = Date.now();
+      state.participants = ["You"];
+      console.log("[LateMeet] Proactively detected meeting:", meetTab.meetingId);
+      await broadcastStateUpdate();
     }
   } catch (err) {
     console.error("[LateMeet] Scan for meet tabs failed:", err);
@@ -1010,7 +1001,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
 
         const meetingId = message.meetingId || state.meetingId;
-        const meetingUrl = sender?.tab?.url || state.meetingUrl;
+        const meetingUrl = message.meetingUrl || sender?.tab?.url || state.meetingUrl;
         await startAudioCapture(
           tabId,
           meetingId,

@@ -1,6 +1,7 @@
 import { State } from "./types";
 import { initTheme } from "./theme.js";
 import { getApiCredentials, saveApiCredentials } from "./utils/credentials";
+import { resolveManualMeetTab } from "./meetingTabs";
 
 initTheme();
 
@@ -94,27 +95,28 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (textEl) textEl.textContent = "Starting...";
       btn.classList.add("loading");
 
-      chrome.tabs.query({ url: "https://meet.google.com/*" }, (tabs) => {
-        if (tabs.length === 0) {
-          handleStartAudioError(new Error("No Google Meet tab found. Join a meeting first."));
-          return;
-        }
-        const meetTab = tabs[0];
+      resolveManualMeetTab()
+        .then(({ tab: meetTab, meetingId, meetingUrl }) => {
+          // --- Get Media Stream ID in foreground (popup) to ensure user gesture propagation ---
+          chrome.tabCapture.getMediaStreamId({ targetTabId: meetTab.id }, async (streamId) => {
+            if (chrome.runtime.lastError) {
+              const err = chrome.runtime.lastError.message || "Unknown error";
+              console.error("[LateMeet] Popup getMediaStreamId error:", err);
+              // If already capturing, we can treat it as success or inform the background
+              if (err.includes("active stream")) {
+                setCopilotActive(true);
+                return;
+              } else {
+                handleStartAudioError(
+                  new Error(
+                    "Capture permission denied. Try clicking the extension icon again on the Meet tab.",
+                  ),
+                );
+                return;
+              }
+            }
 
-        // Extract meeting ID from tab URL
-        const urlMatch = meetTab.url?.match(/meet\.google\.com\/([a-z\-]+)/);
-        const meetingId = urlMatch ? urlMatch[1] : null;
-
-        // --- Get Media Stream ID in foreground (popup) to ensure user gesture propagation ---
-        chrome.tabCapture.getMediaStreamId({ targetTabId: meetTab.id }, async (streamId) => {
-          if (chrome.runtime.lastError) {
-            const err = chrome.runtime.lastError.message || "Unknown error";
-            console.error("[LateMeet] Popup getMediaStreamId error:", err);
-            // If already capturing, we can treat it as success or inform the background
-            if (err.includes("active stream")) {
-              setCopilotActive(true);
-              return;
-            } else {
+            if (!streamId) {
               handleStartAudioError(
                 new Error(
                   "Capture permission denied. Try clicking the extension icon again on the Meet tab.",
@@ -122,53 +124,45 @@ document.addEventListener("DOMContentLoaded", async () => {
               );
               return;
             }
-          }
 
-          if (!streamId) {
-            handleStartAudioError(
-              new Error(
-                "Capture permission denied. Try clicking the extension icon again on the Meet tab.",
-              ),
-            );
-            return;
-          }
+            try {
+              const response = await chrome.runtime.sendMessage({
+                type: "MANUAL_START_AUDIO",
+                tabId: meetTab.id,
+                meetingId: meetingId,
+                meetingUrl: meetingUrl,
+                streamId: streamId,
+                includeMicrophone: true,
+              });
 
-          try {
-            const response = await chrome.runtime.sendMessage({
-              type: "MANUAL_START_AUDIO",
-              tabId: meetTab.id,
-              meetingId: meetingId,
-              streamId: streamId,
-              includeMicrophone: true,
-            });
-
-            if (response && response.success) {
-              // Clear loading state before setting active state
-              btn.disabled = false;
-              btn.classList.remove("loading");
-              setCopilotActive(true);
-              // Immediately show meeting section and start timer
-              if (meetingSection) meetingSection.style.display = "block";
-              if (noMeetingSection) noMeetingSection.style.display = "none";
-              if (meetingId) {
-                const meetingIdEl = document.getElementById("meeting-id");
-                if (meetingIdEl) meetingIdEl.textContent = meetingId;
+              if (response && response.success) {
+                // Clear loading state before setting active state
+                btn.disabled = false;
+                btn.classList.remove("loading");
+                setCopilotActive(true);
+                // Immediately show meeting section and start timer
+                if (meetingSection) meetingSection.style.display = "block";
+                if (noMeetingSection) noMeetingSection.style.display = "none";
+                if (meetingId) {
+                  const meetingIdEl = document.getElementById("meeting-id");
+                  if (meetingIdEl) meetingIdEl.textContent = meetingId;
+                }
+                const badge = document.getElementById("status-badge");
+                if (badge) {
+                  badge.className = "status-badge active";
+                  const statusText = badge.querySelector(".status-text");
+                  if (statusText) statusText.textContent = "Recording...";
+                }
+                startDurationTimer(Date.now());
+              } else {
+                throw new Error(response?.error || "Failed to start audio capture");
               }
-              const badge = document.getElementById("status-badge");
-              if (badge) {
-                badge.className = "status-badge active";
-                const statusText = badge.querySelector(".status-text");
-                if (statusText) statusText.textContent = "Recording...";
-              }
-              startDurationTimer(Date.now());
-            } else {
-              throw new Error(response?.error || "Failed to start audio capture");
+            } catch (err: any) {
+              handleStartAudioError(err);
             }
-          } catch (err: any) {
-            handleStartAudioError(err);
-          }
-        });
-      });
+          });
+        })
+        .catch(handleStartAudioError);
     } catch (err: any) {
       handleStartAudioError(err);
     }
