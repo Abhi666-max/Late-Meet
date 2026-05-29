@@ -1,6 +1,11 @@
 import { State } from "./types";
 import { initTheme } from "./theme.js";
-import { getApiCredentials, saveApiCredentials } from "./utils/credentials";
+import {
+  getApiCredentials,
+  saveApiCredentials,
+  unlockCredentials,
+  isUnlocked,
+} from "./utils/credentials";
 import { validateOpenAIKey } from "./utils/api.js";
 import { resolveManualMeetTab } from "./meetingTabs";
 import { startPopupAudioCapture } from "./popupCapture";
@@ -19,6 +24,48 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   let lastState: State | null = null;
 
+  // ——— Passphrase management ———
+  const passphraseInput = document.getElementById("passphrase-input") as HTMLInputElement | null;
+  const passphraseStatus = document.getElementById("passphrase-status");
+
+  function updatePassphraseStatus() {
+    if (isUnlocked()) {
+      if (passphraseStatus) {
+        passphraseStatus.style.color = "#22C55E";
+        passphraseStatus.textContent = "Unlocked — encryption key is active";
+      }
+    } else {
+      if (passphraseStatus) {
+        passphraseStatus.style.color = "#EF4444";
+        passphraseStatus.textContent = "Locked — enter passphrase to unlock encryption";
+      }
+    }
+  }
+
+  async function handlePassphraseUnlock(): Promise<boolean> {
+    if (isUnlocked()) return true;
+    const passphrase = passphraseInput?.value.trim();
+    if (!passphrase) {
+      if (passphraseStatus) passphraseStatus.textContent = "Please enter a passphrase";
+      return false;
+    }
+    const success = await unlockCredentials(passphrase);
+    if (success) {
+      updatePassphraseStatus();
+      return true;
+    }
+    if (passphraseStatus) {
+      passphraseStatus.style.color = "#EF4444";
+      passphraseStatus.textContent = "Wrong passphrase — could not decrypt stored credentials";
+    }
+    return false;
+  }
+
+  passphraseInput?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") handlePassphraseUnlock();
+  });
+  passphraseInput?.addEventListener("blur", () => handlePassphraseUnlock());
+
   // ——— Check if API key is configured ———
   const config = await getApiCredentials();
 
@@ -30,11 +77,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     mainView.style.display = "block";
   }
 
+  updatePassphraseStatus();
+
   // ——— Setup: Save Key ———
   document.getElementById("save-keys")?.addEventListener("click", async () => {
     const apiKeyInput = document.getElementById("api-key-input") as HTMLInputElement;
     const apiKey = apiKeyInput.value.trim();
     const saveBtn = document.getElementById("save-keys") as HTMLButtonElement;
+
+    if (!isUnlocked()) {
+      const unlocked = await handlePassphraseUnlock();
+      if (!unlocked) return;
+    }
 
     if (!apiKey) {
       shakeElement(apiKeyInput);
