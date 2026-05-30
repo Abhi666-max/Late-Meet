@@ -1087,6 +1087,12 @@ body::-webkit-scrollbar-thumb,
   color: var(--text-muted);
 }
 
+.search-input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}
+
 .search-input:focus {
   border-color: var(--border-element);
   box-shadow: 0 0 0 3px var(--shadow-main);
