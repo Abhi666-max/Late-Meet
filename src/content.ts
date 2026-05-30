@@ -7,7 +7,7 @@ import {
 
 import { initTheme } from "./theme.js";
 
-initTheme();
+void initTheme().catch((err) => console.error(err));
 
 (() => {
   const COPILOT_PREFIX = "[LateMeet]";
