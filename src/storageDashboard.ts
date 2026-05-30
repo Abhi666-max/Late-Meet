@@ -3,11 +3,11 @@ import { StorageStats } from "./types";
 
 function escapeHtml(value: string): string {
   return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
 export async function renderStorageDashboard(container: HTMLElement): Promise<void> {
@@ -18,6 +18,7 @@ export async function renderStorageDashboard(container: HTMLElement): Promise<vo
     container.innerHTML = buildDashboardHTML(stats);
     attachEventListeners(container);
   } catch (err) {
+    console.error("[LateMeet] Failed to load storage dashboard:", err);
     container.innerHTML = '<p class="storage-error">Failed to load storage data.</p>';
   }
 }
