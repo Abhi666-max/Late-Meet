@@ -382,7 +382,7 @@ Want to build from source or contribute to the codebase?
 **① Clone the repository**
 
 ```bash
-git clone [https://github.com/shouri123/Late-Meet.git](https://github.com/shouri123/Late-Meet.git)
+git clone https://github.com/shouri123/Late-Meet.git
 cd Late-Meet
 
 ```
