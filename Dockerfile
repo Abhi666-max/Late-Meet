@@ -22,5 +22,9 @@ FROM node:20-alpine AS output
 WORKDIR /app
 COPY --from=builder /app/dist ./dist
 
+# Run as non-root user for security best practices
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+USER appuser
+
 # Default command outputs build info for CI verification
 CMD ["ls", "-la", "/app/dist"]
