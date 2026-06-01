@@ -1594,7 +1594,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
       case "PARTICIPANTS_UPDATED": {
         const tabId = sender?.tab?.id;
-        if (!tabId) {
+        if (typeof tabId !== "number") {
           sendResponse({ success: false, error: "no tab id" });
           return;
         }
@@ -1615,7 +1615,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             participants: [...state.participants],
             initialParticipants: [...state.initialParticipants],
             lateJoiners: [...state.lateJoiners],
-            participantCount: state.participantCount,
+            participantCount: state.participantCount ?? 0,
           });
         }
 
