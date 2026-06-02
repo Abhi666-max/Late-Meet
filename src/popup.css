@@ -869,12 +869,7 @@ body::-webkit-scrollbar-thumb {
       2,
       1fr
     ) !important; /* Stack stats in 2x2 grid instead of crushing 4 columns */
-    grid-template-columns: repeat(
-      2,
-      1fr
-    ) !important; /* Stack stats in 2x2 grid instead of crushing 4 columns */
 
-    gap: 8px !important;
   }
 
   .duration-text {
