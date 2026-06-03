@@ -7,7 +7,7 @@ import {
 import { validateOpenAIKey, validateElevenLabsKey } from "./utils/api.js";
 import { renderStorageDashboard } from "./storageDashboard";
 
-interface Settings {
+interface KnownSettings {
   summarizationInterval?: number;
   vadThreshold?: number;
   aiModel?: string;
@@ -21,13 +21,11 @@ interface Settings {
   accent?: string;
 }
 
-type BooleanSettingKey =
-  | "lateJoinerBriefing"
-  | "topicDetection"
-  | "decisionDetection"
-  | "actionExtraction"
-  | "sentimentAnalysis"
-  | "transcriptRefinement";
+type Settings = KnownSettings & Record<string, unknown>;
+
+type BooleanSettingKey = {
+  [Key in keyof KnownSettings]-?: KnownSettings[Key] extends boolean | undefined ? Key : never;
+}[keyof KnownSettings];
 
 // Utility to apply style visual changes instantly to the page
 function applyThemePreview(theme: "system" | "light" | "dark", accent: string) {
