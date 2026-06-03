@@ -60,7 +60,7 @@ export interface Contradiction {
 
 export interface State {
   id?: string;
-  savedAt?: string | number;
+  savedAt?: number;
   isActive: boolean;
   meetingId: string | null;
   meetingUrl: string | null;
