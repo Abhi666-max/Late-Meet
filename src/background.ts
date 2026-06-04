@@ -1485,7 +1485,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       case "OPEN_SIDE_PANEL": {
         const callerTabId = sender?.tab?.id;
         if (callerTabId) {
-          await chrome.sidePanel.open({ tabId: callerTabId });
+          try {
+            await chrome.sidePanel.open({ tabId: callerTabId });
+          } catch (err) {
+            console.error("[LateMeet] Failed to open side panel via message:", err);
+          }
         }
         sendResponse({ success: true });
         return;
