@@ -1,4 +1,9 @@
-import { getApiCredentials, saveApiCredentials } from "./utils/credentials";
+import {
+  getApiCredentials,
+  saveApiCredentials,
+  isUnlocked,
+  unlockCredentials,
+} from "./utils/credentials";
 import { validateOpenAIKey, validateElevenLabsKey } from "./utils/api";
 
 export async function renderOnboarding(container: HTMLElement) {
@@ -51,6 +56,10 @@ export async function renderOnboarding(container: HTMLElement) {
       html: `
         <h2>API Keys</h2>
         <p>Provide your OpenAI API key to enable summarization features. ElevenLabs is optional for TTS.</p>
+        <div class="form-group">
+          <label for="onb-passphrase">Encryption Passphrase</label>
+          <input id="onb-passphrase" type="password" class="form-input" placeholder="Create or enter passphrase..." />
+        </div>
         <div class="form-group">
           <label for="onb-openai">OpenAI API Key</label>
           <input id="onb-openai" class="form-input" placeholder="sk-xxxx" />
@@ -113,6 +122,7 @@ export async function renderOnboarding(container: HTMLElement) {
 
     // Wire validate/save controls if API step
     if (step.id === "api-keys") {
+      const passInput = container.querySelector<HTMLInputElement>("#onb-passphrase")!;
       const openaiInput = container.querySelector<HTMLInputElement>("#onb-openai")!;
       const elevenInput = container.querySelector<HTMLInputElement>("#onb-eleven")!;
       const openaiStatus = container.querySelector<HTMLDivElement>("#onb-openai-status")!;
@@ -126,14 +136,25 @@ export async function renderOnboarding(container: HTMLElement) {
         if (creds.elevenlabs_api_key) elevenInput.value = creds.elevenlabs_api_key;
       })();
 
+      async function ensureUnlocked(): Promise<boolean> {
+        if (isUnlocked()) return true;
+        const pass = passInput.value;
+        if (!pass) return false;
+        return await unlockCredentials(pass);
+      }
+
       valOpenBtn.addEventListener("click", async () => {
         openaiStatus.textContent = "Validating...";
         const key = openaiInput.value.trim();
         try {
           const ok = await validateOpenAIKey(key);
           if (ok) {
-            openaiStatus.textContent = "Valid OpenAI key — saved.";
+            if (!(await ensureUnlocked())) {
+              openaiStatus.textContent = "Enter an encryption passphrase to save this API key.";
+              return;
+            }
             await saveApiCredentials({ openai_api_key: key });
+            openaiStatus.textContent = "Valid OpenAI key — saved.";
           } else {
             openaiStatus.textContent = "Invalid OpenAI key.";
           }
@@ -148,8 +169,12 @@ export async function renderOnboarding(container: HTMLElement) {
         try {
           const ok = await validateElevenLabsKey(key);
           if (ok) {
-            elevenStatus.textContent = "Valid ElevenLabs key — saved.";
+            if (!(await ensureUnlocked())) {
+              elevenStatus.textContent = "Enter an encryption passphrase to save this API key.";
+              return;
+            }
             await saveApiCredentials({ elevenlabs_api_key: key });
+            elevenStatus.textContent = "Valid ElevenLabs key — saved.";
           } else {
             elevenStatus.textContent = "Invalid ElevenLabs key.";
           }
