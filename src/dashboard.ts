@@ -1964,6 +1964,63 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.querySelector('[data-tab="sessions"]')?.addEventListener("click", loadMeetingHistory);
   // Load history on tab switch
   document.querySelector('[data-tab="history"]')?.addEventListener("click", loadMeetingHistory);
+
+  // ——— Copy Summary Button ———
+  document.getElementById("copy-summary-btn")?.addEventListener("click", async () => {
+    try {
+      const summaryEl = document.getElementById("dash-summary");
+      const text = summaryEl?.textContent?.trim() || "";
+      if (!text || text === "Waiting for conversation to begin...") {
+        showToast("No summary available to copy", "error");
+        return;
+      }
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.cssText = "position:fixed;left:-999999px;top:-999999px;";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand("copy");
+        textArea.remove();
+      }
+      showToast("Summary copied to clipboard!", "success");
+    } catch {
+      showToast("Failed to copy summary", "error");
+    }
+  });
+
+  // ——— Header Export Buttons ———
+  const headerMdBtn = document.getElementById("header-export-md-btn");
+  const headerPdfBtn = document.getElementById("header-export-pdf-btn");
+
+  if (headerMdBtn) {
+    headerMdBtn.addEventListener("click", async () => {
+      try {
+        const state = await chrome.runtime.sendMessage({ type: "GET_STATE" });
+        if (!state) throw new Error("No meeting data available");
+
+        const markdown = generateMarkdown(state);
+        const filename = `meeting-summary-${new Date().toISOString().slice(0, 10)}.md`;
+
+        downloadFile(markdown, filename, "text/markdown");
+        showToast("Downloaded as .md file", "success");
+      } catch (err) {
+        showToast(
+          "Failed to export: " + (err instanceof Error ? err.message : String(err)),
+          "error",
+        );
+      }
+    });
+  }
+
+  if (headerPdfBtn) {
+    headerPdfBtn.addEventListener("click", () => {
+      showToast("PDF UI active! Ready for Phase 2 library integration.", "success");
+    });
+  }
 });
 
 // --- Empty State Utility ---
