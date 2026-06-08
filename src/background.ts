@@ -1654,26 +1654,22 @@ async function scanForMeetTabs() {
 
 let isStoppingAudio = false;
 
-async function drainOffscreenChunks(): Promise<void> {
-  if (!state.audioActive) return;
-
-  // Phase 1: Send stop signal and await drain summary from offscreen
+async function sendStopSignalToOffscreen(): Promise<void> {
   try {
     const response = await chrome.runtime.sendMessage({
       type: "OFFSCREEN_STOP_CAPTURE",
     });
-    if (response && typeof response === "object") {
-      if (DEBUG) {
-        console.log(
-          `[LateMeet] Offscreen drain summary: complete=${!!response.drainComplete} processed=${response.chunksProcessed ?? 0} dropped=${response.chunksDropped ?? 0} pending=${response.chunksPending ?? 0}`,
-        );
-      }
+    if (response && typeof response === "object" && DEBUG) {
+      console.log(
+        `[LateMeet] Offscreen drain summary: complete=${!!response.drainComplete} processed=${response.chunksProcessed ?? 0} dropped=${response.chunksDropped ?? 0} pending=${response.chunksPending ?? 0}`,
+      );
     }
   } catch {
     // Ignore if offscreen not running
   }
+}
 
-  // Phase 2: Poll GET_REMAINING_CHUNKS until confirmed zero pending
+async function pollRemainingChunks(): Promise<void> {
   const pollStart = Date.now();
   const POLL_TIMEOUT = 10000;
 
@@ -1694,6 +1690,12 @@ async function drainOffscreenChunks(): Promise<void> {
     }
     await new Promise((resolve) => setTimeout(resolve, 200));
   }
+}
+
+async function drainOffscreenChunks(): Promise<void> {
+  if (!state.audioActive) return;
+  await sendStopSignalToOffscreen();
+  await pollRemainingChunks();
 }
 
 async function stopAudioCapture(reason = "Stopped") {
@@ -1759,6 +1761,39 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   }
 });
 
+async function handleTabActivation(
+  activeInfo: { tabId: number; windowId: number },
+  tab: chrome.tabs.Tab,
+  meetingId: string,
+) {
+  if (state.targetTabId && state.targetTabId !== activeInfo.tabId) {
+    if (state.audioActive) {
+      if (DEBUG) {
+        console.log(
+          "[LateMeet] Audio capture active on tab",
+          state.targetTabId,
+          "- ignoring switch to tab",
+          activeInfo.tabId,
+        );
+      }
+      return;
+    }
+    await saveCurrentTabState();
+  }
+
+  await loadTabState(activeInfo.tabId);
+
+  if (!state.isActive) {
+    state.isActive = true;
+    state.meetingId = meetingId;
+    state.meetingUrl = tab.url || null;
+    state.targetTabId = activeInfo.tabId;
+    state.startTime = Date.now();
+    state.participants = ["You"];
+  }
+  await broadcastStateUpdate();
+}
+
 chrome.tabs.onActivated.addListener(async (activeInfo) => {
   await hydrateState();
   try {
@@ -1766,32 +1801,7 @@ chrome.tabs.onActivated.addListener(async (activeInfo) => {
     if (!tab.url) return;
     const meetingId = getMeetingIdFromUrl(tab.url);
     if (meetingId && meetingId !== "new") {
-      if (state.targetTabId && state.targetTabId !== activeInfo.tabId) {
-        if (state.audioActive) {
-          if (DEBUG) {
-            console.log(
-              "[LateMeet] Audio capture active on tab",
-              state.targetTabId,
-              "- ignoring switch to tab",
-              activeInfo.tabId,
-            );
-          }
-          return;
-        }
-        await saveCurrentTabState();
-      }
-
-      await loadTabState(activeInfo.tabId);
-
-      if (!state.isActive) {
-        state.isActive = true;
-        state.meetingId = meetingId;
-        state.meetingUrl = tab.url || null;
-        state.targetTabId = activeInfo.tabId;
-        state.startTime = Date.now();
-        state.participants = ["You"];
-      }
-      await broadcastStateUpdate();
+      await handleTabActivation(activeInfo, tab, meetingId);
     }
   } catch (err) {
     console.debug("[LateMeet] tab activation handler failed:", err);
