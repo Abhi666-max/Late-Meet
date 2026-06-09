@@ -149,19 +149,43 @@ async function flushAudioChunk(force = false) {
     // recorder is then started so the next segment carries its own header too.
     const previousRecorder = mediaRecorder;
     // Drop the persistent error listener first so a stop-time error is handled
-    // by stopMediaRecorder()'s own listener instead of recursing into stopCapture().
+    // by the wait helper below instead of recursing into stopCapture().
     previousRecorder.removeEventListener("error", handleRecorderError);
 
-    await stopMediaRecorder();
-
-    // dataavailable has now fired with the finished segment; detach the listener.
+    // Wait for the final `dataavailable` so the complete segment is pushed into
+    // pendingChunks before we drain. Per the MediaStream Recording spec the
+    // order is `dataavailable` → `stop`, and on a non-fatal error it is
+    // `error` → `dataavailable` → `stop`, so the final blob always arrives;
+    // a timeout guards against the event never firing.
+    await stopRecorderAndAwaitData(previousRecorder);
     previousRecorder.removeEventListener("dataavailable", handleRecorderDataAvailable);
 
-    // Resume capture before draining so the inter-segment gap stays minimal.
-    if (!isStopping && recorderStream) {
+    if (isStopping || !recorderStream) {
+      await drainWithTimeout();
+      return;
+    }
+
+    // Start a fresh recorder so the next segment carries its own header. Resume
+    // capture before draining so the inter-segment gap stays minimal.
+    // `MediaRecorder` creation/`start()` can throw synchronously (e.g.
+    // NotSupportedError when the stream has gone inactive); if it does, end
+    // capture cleanly instead of leaving the VAD loop spinning on a dead recorder.
+    try {
       mediaRecorder = createRecorder();
       mediaRecorder.start();
       bufferStartTime = Date.now();
+    } catch (err) {
+      console.error("[LateMeet][offscreen] Failed to restart recorder after flush:", err);
+      relay(`recorder restart failed — ${(err as Error)?.message ?? "unknown error"}`);
+      mediaRecorder = null;
+      await stopCapture();
+      await chrome.runtime
+        .sendMessage({
+          type: "UNEXPECTED_TRACK_END",
+          reason: "Recorder failed to restart after flush",
+        })
+        .catch(() => {});
+      return;
     }
 
     await drainWithTimeout();
@@ -353,6 +377,47 @@ async function stopMediaRecorder() {
       recorder.addEventListener("stop", () => clearTimeout(timeout), { once: true });
     });
   }
+}
+
+// Stops a recorder and resolves once its final `dataavailable` has fired (which
+// handleRecorderDataAvailable pushes into pendingChunks), so callers can drain a
+// complete segment. Resolves on `stop` for the no-data case and on a 2 000 ms
+// timeout so a missing event can't wedge the flush loop.
+function stopRecorderAndAwaitData(recorder: MediaRecorder): Promise<void> {
+  return new Promise<void>((resolve) => {
+    if (recorder.state === "inactive") {
+      resolve();
+      return;
+    }
+
+    let settled = false;
+    const finish = () => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timeoutId);
+      recorder.removeEventListener("dataavailable", onData);
+      recorder.removeEventListener("stop", onStop);
+      resolve();
+    };
+    // handleRecorderDataAvailable is registered first, so the blob is already in
+    // pendingChunks by the time this listener runs and resolves.
+    const onData = () => finish();
+    const onStop = () => finish();
+    const timeoutId = setTimeout(() => {
+      relay("recorder stop timeout — proceeding with queued chunks");
+      finish();
+    }, 2000);
+
+    recorder.addEventListener("dataavailable", onData, { once: true });
+    recorder.addEventListener("stop", onStop, { once: true });
+
+    try {
+      recorder.stop();
+    } catch (err) {
+      console.error("[LateMeet][offscreen] recorder stop failed:", err);
+      finish();
+    }
+  });
 }
 
 function handleRecorderDataAvailable(event: BlobEvent) {
