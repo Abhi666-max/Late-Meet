@@ -669,11 +669,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (topicsList) {
         if (state.topics && state.topics.length > 0) {
           topicsList.innerHTML =
-            `<ul role="list" class="topics-items-list">` +
+            `<ul class="topics-items-list">` +
             state.topics
               .map(
                 (t) => `
-            <li role="listitem" class="topic-item">
+            <li class="topic-item">
               <div class="topic-dot ${sanitizeTopicStatus(t.status)}"></div>
               <span class="topic-name">${escapeHtml(t.name || "")}</span>
               <span class="topic-status ${sanitizeTopicStatus(t.status)}">${escapeHtml(t.status || "active")}</span>
