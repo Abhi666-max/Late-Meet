@@ -8,6 +8,7 @@ import {
 import { validateOpenAIKey, validateElevenLabsKey } from "./utils/api.js";
 import { renderStorageDashboard } from "./storageDashboard";
 import { MIN_PASSPHRASE_LENGTH, evaluatePassphraseStrength } from "./passphraseStrength";
+import { getSettings } from "./settings";
 
 /**
  * Strongly-typed map of all recognized extension settings keys and their
