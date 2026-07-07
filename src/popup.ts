@@ -105,8 +105,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (!apiKey) {
       shakeElement(apiKeyInput);
-      const errorMsg = document.getElementById('api-key-error');
-      if (errorMsg) errorMsg.style.display = 'block';
+      const errorMsg = document.getElementById("api-key-error");
+      if (errorMsg) errorMsg.style.display = "block";
       return;
     }
     //Validation.
@@ -757,12 +757,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 // Clear error message when user starts typing
-const apiInputBox = document.getElementById('api-key-input');
+const apiInputBox = document.getElementById("api-key-input");
 if (apiInputBox) {
-    apiInputBox.addEventListener('input', () => {
-        const errorMsg = document.getElementById('api-key-error');
-        if (errorMsg && errorMsg.style.display === 'block') {
-            errorMsg.style.display = 'none';
-        }
-    });
+  apiInputBox.addEventListener("input", () => {
+    const errorMsg = document.getElementById("api-key-error");
+    if (errorMsg && errorMsg.style.display === "block") {
+      errorMsg.style.display = "none";
+    }
+  });
 }
